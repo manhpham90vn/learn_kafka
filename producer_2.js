@@ -48,7 +48,6 @@ const fetchRecentChanges = async () => {
 };
 
 const sendMessage = async (message) => {
-  const currentTime = new Date().toISOString();
   await producer.send({
     topic: "wikimedia.recentchange",
     messages: [{ value: JSON.stringify(message) }],

@@ -34,6 +34,8 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zookeeper
+    volumes:
+      - kafka-data:/var/lib/kafka/data
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
@@ -45,3 +47,29 @@ services:
       JVM_OPTS: "-Xms32M -Xmx64M"
     depends_on:
       - kafka
+
+  opensearch:
+    image: opensearchproject/opensearch:2.18.0
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+      - DISABLE_SECURITY_PLUGIN=true
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.18.0
+    environment:
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    ports:
+      - "5601:5601"
+    depends_on:
+      - opensearch
+
+volumes:
+  opensearch-data:
+  kafka-data:

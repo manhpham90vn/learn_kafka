@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@opensearch-project/opensearch": "^2.13.0",
     "kafkajs": "^2.2.4"
   }
 }
