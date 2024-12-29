@@ -7,8 +7,8 @@ const kafka = new Kafka({
   requestTimeout: 30000,
   connectionTimeout: 30000,
   retry: {
-    initialRetryTime: 100,
-    retries: 8,
+    initialRetryTime: 1000,
+    retries: 10,
   },
 });
 

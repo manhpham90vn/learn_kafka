@@ -1,4 +1,5 @@
 import { Kafka } from "kafkajs";
+import { EventSource } from "eventsource";
 
 const kafka = new Kafka({
   clientId: "my-app-producer",
@@ -6,8 +7,8 @@ const kafka = new Kafka({
   requestTimeout: 30000,
   connectionTimeout: 30000,
   retry: {
-    initialRetryTime: 100,
-    retries: 8,
+    initialRetryTime: 1000,
+    retries: 10,
   },
 });
 
@@ -15,36 +16,23 @@ const producer = kafka.producer();
 
 const fetchRecentChanges = async () => {
   const url = "https://stream.wikimedia.org/v2/stream/recentchange";
-  const response = await fetch(url);
-  const reader = response.body.getReader();
-  const textDecoder = new TextDecoder();
+  const eventSource = new EventSource(url);
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      console.log("No more data to read, reconnecting...");
-      break;
+  eventSource.onmessage = async (event) => {
+    try {
+      const message = JSON.parse(event.data);
+      console.log("Received message:", message);
+      await sendMessage(message);
+    } catch (error) {
+      console.error("Error processing message:", error);
     }
+  };
 
-    if (value) {
-      const chunk = textDecoder.decode(value, { stream: true });
-
-      const lines = chunk.split("\n");
-      for (let i = 0; i < lines.length - 1; i++) {
-        try {
-          if (lines[i].trim() === "") {
-            continue;
-          }
-          if (lines[i].startsWith("data:")) {
-            const message = JSON.parse(lines[i].substring(6));
-            await sendMessage(message);
-          }
-        } catch (error) {
-          console.error("Error parsing JSON: ", error);
-        }
-      }
-    }
-  }
+  eventSource.onerror = (error) => {
+    console.error("Error with EventSource connection:", error);
+    eventSource.close();
+    setTimeout(fetchRecentChanges, 5000);
+  };
 };
 
 const sendMessage = async (message) => {

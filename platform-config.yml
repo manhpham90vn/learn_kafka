@@ -1,0 +1,23 @@
+organization:
+  name: "My Organization"
+
+database:
+  host: "postgresql"
+  port: 5432
+  name: "conduktor-console"
+  username: "conduktor"
+  password: "conduktor"
+
+admin:
+  email: admin@admin.com
+  password: admin
+
+auth:
+  local-users:
+    - email: user@user.com
+      password: user
+
+clusters:
+  - id: my-local-kafka-cluster
+    name: My Local Kafka Cluster
+    bootstrapServers: "kafka:19092"
