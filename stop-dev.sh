@@ -1,2 +1,2 @@
 rm -rf .env
-docker-compose -f docker-compose.yml down -v
+docker-compose -f dockers/docker-compose.yml down -v
